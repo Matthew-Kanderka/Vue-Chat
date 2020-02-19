@@ -1,4 +1,4 @@
-# a3
+# Vue Chat Using Socket.io
 
 ## Project setup
 ```
