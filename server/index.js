@@ -10,6 +10,10 @@ io.on('connection', function(socket){
   console.log('a user connected');
   socket.on('chat message', function(msg) {
     console.log(msg);
+    // var date = new Date();
+    // var hour = date.getHours();
+    // var minutes = date.getMinutes();
+    // console.log(hour);
     io.emit('chat message', msg);
   });
 });

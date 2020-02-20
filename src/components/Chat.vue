@@ -9,11 +9,9 @@
 
       <b-row class="test">
         <b-col cols="8" class="testcol">
-          Chat
           <ul>
             <li v-bind:key="msg.id" v-for="msg in messages">{{msg}}</li>
           </ul>
-
         </b-col>
 
         <b-col class="testcol">
@@ -81,6 +79,9 @@ export default {
   margin: 10px 10px;
   height: 500px;
   border: 1px solid black;
+  color: white;
+  height: 500px;
+  overflow: auto;
 }
 
 .label {
@@ -89,5 +90,13 @@ export default {
 
 input {
   width: 100%;
+}
+
+ul {
+  list-style-type: none;
+  text-align: left;
+  position: absolute;
+  bottom: 0;
+  height: 500px;
 }
 </style>
