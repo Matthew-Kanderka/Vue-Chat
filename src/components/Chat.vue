@@ -3,7 +3,7 @@
     <b-container>
 
       <b-row class="label">
-        <b-col>user name</b-col>
+        <b-col>You are {{username}}</b-col>
         <b-col>Online Users:</b-col>
       </b-row>
 
@@ -47,6 +47,7 @@ export default {
       message: '',
       messages: [],
       users: [],
+      username: '',
       socket: io('localhost:3000')
     }
   },
@@ -61,6 +62,14 @@ export default {
   mounted() {
     this.socket.on('chat message', (data) => {
       this.messages.push(data);
+    })
+
+    this.socket.on('username', (un) => {
+      this.username = un;
+    })
+
+    this.socket.on('updateUsers', (updatedList) => {
+      this.users = updatedList;
     })
   }
 }
@@ -80,8 +89,8 @@ export default {
   height: 500px;
   border: 1px solid black;
   color: white;
-  height: 500px;
-  overflow: auto;
+  overflow-y: auto;
+  bottom: 0;
 }
 
 .label {
@@ -97,6 +106,8 @@ ul {
   text-align: left;
   position: absolute;
   bottom: 0;
-  height: 500px;
+  padding: 0;
+  overflow: auto;
+  /* height: 500px; */
 }
 </style>
