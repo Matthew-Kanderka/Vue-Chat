@@ -10,7 +10,11 @@
       <b-row class="test">
         <b-col cols="8" class="testcol">
           <ul>
-            <li v-bind:key="msg.id" v-for="msg in messages">{{msg}}</li>
+            <li v-bind:key="msg.id" v-for="msg in messages">
+              <span>{{msg.time}} </span>
+              <span v-bind:style="{ color: '#' + userNameColor}">{{msg.nickname}}: </span>
+              <span><b>{{msg.message}}</b></span>
+            </li>
           </ul>
         </b-col>
 
@@ -48,7 +52,8 @@ export default {
       messages: [],
       users: [],
       username: '',
-      socket: io('localhost:3000')
+      socket: io('localhost:3000'),
+      userNameColor: '#ffffff'
     }
   },
   methods: {
@@ -62,15 +67,24 @@ export default {
   mounted() {
     this.socket.on('chat message', (data) => {
       this.messages.push(data);
-    })
+    });
 
     this.socket.on('username', (un) => {
       this.username = un;
-    })
+    });
+
+    this.socket.on('set color', (color) => {
+      this.userNameColor = color;
+      console.log(this.userNameColor);
+    });
+
+    this.socket.on('set nickname', (newNick) => {
+      this.username = newNick;
+    });
 
     this.socket.on('updateUsers', (updatedList) => {
       this.users = updatedList;
-    })
+    });
   }
 }
 </script>

@@ -20,7 +20,25 @@ io.on('connection', function(socket) {
 
   socket.on('chat message', function(msg) {
     console.log(msg);
-    var message = buildTime() + ' ' + users.get(socket.id) + ": " + msg;
+
+    //change nickname color
+    if (msg.startsWith("/nickcolor ")) {
+      var color = msg.slice(11);
+      socket.emit('set color', color);
+    }
+
+    //change nickname
+    if (msg.startsWith("/nick ")) {
+      var newNickname = msg.slice(6);
+      socket.emit('set nickname', newNickname);
+    }
+
+    var message = {
+      time: buildTime(),
+      nickname: users.get(socket.id),
+      message: msg
+    }
+
     io.emit('chat message', message);
   });
 
