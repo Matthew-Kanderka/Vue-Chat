@@ -31,7 +31,6 @@
         <b-col>
         <form @submit.prevent="sendMessage">
           <input v-model="message" type="text">
-          <!-- <button type="submit">Send</button> -->
         </form>
         </b-col>
 
@@ -75,11 +74,15 @@ export default {
 
     this.socket.on('set color', (color) => {
       this.userNameColor = color;
-      console.log(this.userNameColor);
     });
 
     this.socket.on('set nickname', (newNick) => {
       this.username = newNick;
+    });
+
+    this.socket.on('nickname taken', (message) => {
+      console.log(message);
+      this.messages.push(message)
     });
 
     this.socket.on('updateUsers', (updatedList) => {

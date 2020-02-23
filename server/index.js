@@ -2,7 +2,6 @@ var app = require('express')();
 var http = require('http').createServer(app);
 var io = require('socket.io')(http);
 
-var user_names = ["Spiderman", "Ironman", "The Hulk", "Black Widow", "Thor"];
 var users = new Map();
 
 app.get('/', function(req, res){
@@ -19,27 +18,47 @@ io.on('connection', function(socket) {
   io.emit('updateUsers', Array.from(users.values()));
 
   socket.on('chat message', function(msg) {
-    console.log(msg);
 
     //change nickname color
     if (msg.startsWith("/nickcolor ")) {
       var color = msg.slice(11);
       socket.emit('set color', color);
-    }
-
-    //change nickname
-    if (msg.startsWith("/nick ")) {
+    } else if (msg.startsWith("/nick ")) {
       var newNickname = msg.slice(6);
-      socket.emit('set nickname', newNickname);
-    }
+      var nicknameExists = false;
 
-    var message = {
-      time: buildTime(),
-      nickname: users.get(socket.id),
-      message: msg
-    }
+      // check if nickname already exists
+      for (const v of users.values()) {
+        if (v === newNickname) {
+          nicknameExists = true;
+          break;
+        }
+      }
 
-    io.emit('chat message', message);
+      if (nicknameExists) {
+        var errorMsg = { 
+          message: "nickname already exists"
+        };
+        socket.emit('nickname taken', errorMsg);
+      } else {
+        users.set(socket.id, newNickname);
+        socket.emit('set nickname', newNickname);
+        io.emit('updateUsers', Array.from(users.values()));
+      }
+    } else {
+
+      if (msg.startsWith('/')) {
+        console.log("invalid command");
+      }
+
+      var message = {
+        time: buildTime(),
+        nickname: users.get(socket.id),
+        message: msg
+      }
+
+      io.emit('chat message', message);
+    }
   });
 
   socket.on('disconnect', function() {
@@ -59,7 +78,7 @@ function getRandomName() {
   var randomName = '';
 
   var rn = Math.random();
-  randomName = Math.floor(rn * 100);
+  randomName = Math.floor(rn * 100).toString();
 
   return randomName;
 }
