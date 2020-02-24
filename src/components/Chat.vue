@@ -8,8 +8,14 @@
       </b-row>
 
       <b-row class="test">
-        <b-col cols="8" class="testcol">
+        <b-col cols="8" class="testcol overflow-auto">
           <ul>
+            <li v-bind:key="msg.id" v-for="msg in chatLog">
+              <span>{{msg.time}} </span>
+              <span v-bind:style="{ color: '#' + userNameColor}">{{msg.nickname}}: </span>
+              <span><b>{{msg.message}}</b></span>
+            </li>
+
             <li v-bind:key="msg.id" v-for="msg in messages">
               <span>{{msg.time}} </span>
               <span v-bind:style="{ color: '#' + userNameColor}">{{msg.nickname}}: </span>
@@ -31,6 +37,7 @@
         <b-col>
         <form @submit.prevent="sendMessage">
           <input v-model="message" type="text">
+          <!-- <button type="submit">Send</button> -->
         </form>
         </b-col>
 
@@ -52,7 +59,8 @@ export default {
       users: [],
       username: '',
       socket: io('localhost:3000'),
-      userNameColor: '#ffffff'
+      userNameColor: '#ffffff',
+      chatLog: []
     }
   },
   methods: {
@@ -88,6 +96,10 @@ export default {
     this.socket.on('updateUsers', (updatedList) => {
       this.users = updatedList;
     });
+
+    this.socket.on('chat log', (log) => {
+      this.chatLog = log;
+    });
   }
 }
 </script>
@@ -106,8 +118,6 @@ export default {
   height: 500px;
   border: 1px solid black;
   color: white;
-  overflow-y: auto;
-  bottom: 0;
 }
 
 .label {
@@ -121,10 +131,9 @@ input {
 ul {
   list-style-type: none;
   text-align: left;
-  position: absolute;
-  bottom: 0;
+  vertical-align: bottom;
+  /* bottom: 0;
+  position: absolute; */
   padding: 0;
-  overflow: auto;
-  /* height: 500px; */
 }
 </style>

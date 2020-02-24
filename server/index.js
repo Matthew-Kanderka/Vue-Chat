@@ -3,6 +3,7 @@ var http = require('http').createServer(app);
 var io = require('socket.io')(http);
 
 var users = new Map();
+var chatLog = [];
 
 app.get('/', function(req, res){
   res.sendFile(__dirname + '/index.html');
@@ -16,6 +17,9 @@ io.on('connection', function(socket) {
   users.set(socket.id, rn);
   socket.emit('username', rn);
   io.emit('updateUsers', Array.from(users.values()));
+
+  // send chat log to new user
+  socket.emit('chat log', chatLog);
 
   socket.on('chat message', function(msg) {
 
@@ -56,6 +60,8 @@ io.on('connection', function(socket) {
         nickname: users.get(socket.id),
         message: msg
       }
+
+      chatLog.push(message);
 
       io.emit('chat message', message);
     }
