@@ -3,7 +3,7 @@
     <b-container>
 
       <b-row class="label">
-        <b-col>You are {{username}}</b-col>
+        <b-col cols="8">You are {{nickname}}</b-col>
         <b-col>Online Users:</b-col>
       </b-row>
 
@@ -12,14 +12,14 @@
           <ul>
             <li v-bind:key="msg.id" v-for="msg in chatLog">
               <span>{{msg.time}} </span>
-              <span v-bind:style="{ color: '#' + userNameColor}">{{msg.nickname}}: </span>
-              <span><b>{{msg.message}}</b></span>
+              <span v-bind:style="{ color: '#' + msg.color}">{{msg.nickname}}: </span>
+              <span>{{msg.message}}</span>
             </li>
 
             <li v-bind:key="msg.id" v-for="msg in messages">
               <span>{{msg.time}} </span>
-              <span v-bind:style="{ color: '#' + userNameColor}">{{msg.nickname}}: </span>
-              <span><b>{{msg.message}}</b></span>
+              <span v-bind:style="{ color: '#' + msg.color}">{{msg.nickname}}: </span>
+              <span>{{msg.message}}</span>
             </li>
           </ul>
         </b-col>
@@ -27,7 +27,7 @@
         <b-col class="testcol">
           users
           <ul>
-            <li v-bind:key="user.id" v-for="user in users">{{user}}</li>
+            <li v-bind:key="user.id" v-for="user in users">{{user.nickname}}</li>
           </ul>
         </b-col>
       </b-row>
@@ -37,7 +37,6 @@
         <b-col>
         <form @submit.prevent="sendMessage">
           <input v-model="message" type="text">
-          <!-- <button type="submit">Send</button> -->
         </form>
         </b-col>
 
@@ -57,7 +56,7 @@ export default {
       message: '',
       messages: [],
       users: [],
-      username: '',
+      nickname: '',
       socket: io('localhost:3000'),
       userNameColor: '#ffffff',
       chatLog: []
@@ -73,11 +72,12 @@ export default {
   },
   mounted() {
     this.socket.on('chat message', (data) => {
+      console.log(data);
       this.messages.push(data);
     });
 
-    this.socket.on('username', (un) => {
-      this.username = un;
+    this.socket.on('nickname', (un) => {
+      this.nickname = un;
     });
 
     this.socket.on('set color', (color) => {
@@ -85,11 +85,10 @@ export default {
     });
 
     this.socket.on('set nickname', (newNick) => {
-      this.username = newNick;
+      this.nickname = newNick;
     });
 
     this.socket.on('nickname taken', (message) => {
-      console.log(message);
       this.messages.push(message)
     });
 
@@ -99,6 +98,19 @@ export default {
 
     this.socket.on('chat log', (log) => {
       this.chatLog = log;
+    });
+
+    this.socket.on('set cookie', (nickname, color) => {
+      this.$cookies.set("nickname", nickname);
+      this.$cookies.set("color", color);
+    });
+
+    this.socket.on('check cookie', () => {
+      if (this.$cookies.get("nickname")) {
+        this.socket.emit('set existing user', {'nickname': this.$cookies.get("nickname"), 'color': this.$cookies.get("color") });
+      } else {
+        this.socket.emit('new user');
+      }
     });
   }
 }
