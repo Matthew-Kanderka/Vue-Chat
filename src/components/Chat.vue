@@ -19,13 +19,12 @@
             <li v-bind:key="msg.id" v-for="msg in messages">
               <span>{{msg.time}} </span>
               <span v-bind:style="{ color: '#' + msg.color}">{{msg.nickname}}: </span>
-              <span>{{msg.message}}</span>
+              <span v-bind:style="{ fontWeight: msg.weight}">{{msg.message}}</span>
             </li>
           </ul>
         </b-col>
 
         <b-col class="testcol">
-          users
           <ul>
             <li v-bind:key="user.id" v-for="user in users">{{user.nickname}}</li>
           </ul>
@@ -58,7 +57,6 @@ export default {
       users: [],
       nickname: '',
       socket: io('localhost:3000'),
-      userNameColor: '#ffffff',
       chatLog: []
     }
   },
@@ -66,22 +64,23 @@ export default {
     sendMessage(e) {
 
       e.preventDefault();
-      this.socket.emit('chat message', this.message);
-      this.message = '';
+
+      if (this.message === '') {
+        return;
+      } else {
+
+        this.socket.emit('chat message', this.message);
+        this.message = '';
+      }
     }
   },
   mounted() {
     this.socket.on('chat message', (data) => {
-      console.log(data);
       this.messages.push(data);
     });
 
     this.socket.on('nickname', (un) => {
       this.nickname = un;
-    });
-
-    this.socket.on('set color', (color) => {
-      this.userNameColor = color;
     });
 
     this.socket.on('set nickname', (newNick) => {

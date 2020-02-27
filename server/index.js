@@ -55,7 +55,6 @@ io.on('connection', function(socket) {
         var nick = users.get(socket.id).nickname;
         users.set(socket.id, {'nickname':nick, 'color': color});
         socket.emit('set cookie', nick, color);
-        socket.emit('set color', color);
       } else {
 
         var message = {
@@ -68,13 +67,16 @@ io.on('connection', function(socket) {
     } else if (msg.startsWith("/nick ")) {
       var newNickname = msg.slice(6);
 
+      console.log(doesNicknameExist(newNickname));
+
       if (doesNicknameExist(newNickname)) {
         var errorMsg = { 
           message: "nickname already exists"
         };
         socket.emit('nickname taken', errorMsg);
       } else {
-        users.set(socket.id, newNickname);
+        var color = users.get(socket.id).color;
+        users.set(socket.id, {'nickname': newNickname, 'color': color});
         socket.emit('set nickname', newNickname);
         socket.emit('set cookie', newNickname);
         io.emit('updateUsers', Array.from(users.values()));
@@ -91,8 +93,6 @@ io.on('connection', function(socket) {
         socket.emit('chat message', message);
       } else {
 
-console.log(users.get(socket.id));
-
         var message = {
           time: buildTime(),
           nickname: users.get(socket.id).nickname,
@@ -100,9 +100,18 @@ console.log(users.get(socket.id));
           color: users.get(socket.id).color
         }
 
+        var message2 = {
+          time: buildTime(),
+          nickname: users.get(socket.id).nickname,
+          message: msg,
+          color: users.get(socket.id).color,
+          weight: 700
+        }
+
         chatLog.push(message);
 
-        io.emit('chat message', message);
+        socket.emit('chat message', message2)
+        socket.broadcast.emit('chat message', message);
     }
     }
   });
@@ -155,7 +164,7 @@ function doesNicknameExist(newNickname) {
   var nicknameExists = false;
 
   for (const v of users.values()) {
-    if (v === newNickname) {
+    if (v.nickname === newNickname) {
       nicknameExists = true;
       break;
     }
